@@ -37,3 +37,33 @@ public class Client {
     private static void initializeTabuleiroController() {
         tabuleiroController = Projeto.getTabuleiroController();
     }
+
+    // Método para processar as mensagens recebidas do servidor
+    private static void processServerMessage(String message, Scanner scanner, PrintWriter output) {
+        if (message.equals("SUA_VEZ")) {
+            // Solicita a jogada do utilizador
+            System.out.print("Faça sua jogada (formato: linha:coluna): ");
+            String move = scanner.nextLine();
+            output.println(move);
+        } else if (message.startsWith("MOVIMENTO:")) {
+            // Processa o movimento do adversário
+            String[] parts = message.substring(10).split(":");
+            int row = Integer.parseInt(parts[1]);
+            int col = Integer.parseInt(parts[2]);
+            System.out.println("Movimento do adversário: " + row + ":" + col);
+            updateBoard(row, col);
+        } else {
+            // Mensagem desconhecida do servidor
+            System.err.println("Mensagem do servidor desconhecida: " + message);
+        }
+    }
+
+    // Método para atualizar o tabuleiro com o movimento recebido
+    static void updateBoard(int row, int col) {
+        if (tabuleiroController != null) {
+            tabuleiroController.updateBoard(row, col);
+        } else {
+            System.err.println("TabuleiroController não foi inicializado.");
+        }
+    }
+}
