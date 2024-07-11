@@ -1,0 +1,31 @@
+.main-pane {
+    -fx-background-image: url('bg.png');
+    -fx-background-size: cover;
+    -fx-padding: 20;
+}
+
+.game-grid {
+    -fx-background-color: rgba(255, 255, 255, 0.8);
+    -fx-padding: 10;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.75), 10, 0.5, 0, 0);
+}
+
+.grid-cell {
+    -fx-border-color: black;
+    -fx-border-width: 1px;
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 5, 0.5, 0, 0);
+}
+
+.grid-cell:hover {
+    -fx-background-color: lightgray;
+}
+
+.info-text {
+    -fx-font-family: 'Arial';
+    -fx-font-size: 16px;
+    -fx-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.75), 5, 0.5, 0, 0);
+}
