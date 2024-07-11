@@ -186,7 +186,74 @@ public class TabuleiroController {
         }
     }
 
+    // Marca a posição inicial
+    private void markStartingPosition(int row, int col, Color color) {
+        Circle ball = new Circle(10, color);
+        ball.setEffect(new DropShadow(5, color.darker()));
+        StackPane cell = getCellFromGridPane(gridPane, row, col);
+        if (cell != null) {
+            cell.getChildren().add(ball);
+            markingBalls[row][col] = ball;
+        }
+    }
 
+    // Declara o vencedor
+    private void declareWinner(boolean isBlueWinner) {
+        String winnerName = isBlueWinner ? jogador2.getName() : jogador1.getName();
+
+        // Mostra um diálogo indicando o vencedor
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Fim do Jogo");
+        alert.setHeaderText("O jogador " + winnerName + "venceu!");
+        alert.setContentText("Parabéns!");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            // Fecha a interface de utilizador após reconhecer o vencedor
+            Platform.exit();
+        }
+    }
+
+    // Atualiza o tabuleiro
+    void updateBoard(int row, int col) {
+        Jogador currentPlayer = isBlueTurn ? jogador1 : jogador2;
+        Arc arcToMove = currentPlayer.getArc();
+        moveArcToPosition(arcToMove, row, col);
+        addMarkingBall(row, col, currentPlayer.getColor());
+        isBlueTurn = !isBlueTurn;
+        updateTurnText();
+
+        // Atualiza as coordenadas do último movimento com base no jogador atual
+        if (currentPlayer == jogador1) {
+            lastMoveRowPlayer1 = row;
+            lastMoveColPlayer1 = col;
+        } else if (currentPlayer == jogador2) {
+            lastMoveRowPlayer2 = row;
+            lastMoveColPlayer2 = col;
+        }
+    }
+
+    // Adiciona uma bola de marcação
+    private void addMarkingBall(int row, int col, Color color) {
+        Circle ball = new Circle(10, color);
+        ball.setEffect(new DropShadow(5, color.darker()));
+        StackPane cell = getCellFromGridPane(gridPane, row, col);
+        if (cell != null) {
+            cell.getChildren().add(ball);
+            markingBalls[row][col] = ball;
+        }
+    }
+
+    // Atualiza o texto do turno
+    private void updateTurnText() {
+        if (isBlueTurn) {
+            turnText.setText("Turno: " + jogador1.getName());
+            playerText.setText(jogador1.getName());
+        } else {
+            turnText.setText("Turno: " + jogador2.getName());
+            playerText.setText(jogador2.getName());
+        }
+    }
 
 }
 
