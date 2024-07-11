@@ -81,7 +81,7 @@ public class TabuleiroController {
     private Jogador jogador2;
     private Circle[][] markingBalls;
     private boolean isBlueTurn;
-
+    private Arc currentArcHovered;
     private boolean isMyTurn = false;
     private int lastMoveRowPlayer1 = -1;
     private int lastMoveColPlayer1 = -1;
@@ -108,6 +108,8 @@ public class TabuleiroController {
                 cell.setPrefSize(100, 100);
                 cell.getStyleClass().add("grid-cell");
                 cell.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> handleCellClick(finalRow, finalCol));
+                cell.setOnMouseEntered(event -> handleCellHover(finalRow, finalCol)); // Event handler for hover
+                cell.setOnMouseExited(event -> handleCellExit(finalRow, finalCol)); // Event handler for exit hover
                 gridPane.add(cell, col, row);
             }
         }
@@ -143,6 +145,65 @@ public class TabuleiroController {
             }
         }).start();
     }
+
+
+    private void handleCellHover(int row, int col) {
+        if (isMyTurn) {
+            Jogador currentPlayer = isBlueTurn ? jogador1 : jogador2;
+            Arc arcToMove = currentPlayer.getArc();
+
+            StackPane currentCell = getCellForArc(arcToMove);
+            if (currentCell == null) {
+                return;
+            }
+
+            // Check if the hovered cell contains the player's piece
+            if (GridPane.getRowIndex(currentCell) == row && GridPane.getColumnIndex(currentCell) == col) {
+                currentArcHovered = arcToMove;
+
+                // Iterate through valid moves and highlight corresponding cells
+                for (int[] move : validMoves) {
+                    int dx = move[0];
+                    int dy = move[1];
+                    int newRow = row + dx;
+                    int newCol = col + dy;
+
+                    // Check if the new position is within bounds
+                    if (newRow >= 0 && newRow < 5 && newCol >= 0 && newCol < 5) {
+                        StackPane nextCell = getCellFromGridPane(gridPane, newRow, newCol);
+                        if (nextCell != null && nextCell.getChildren().isEmpty()) {
+                            // Highlight the cell
+                            nextCell.setStyle("-fx-background-color: yellow;");
+                        }
+                    }
+                }
+            } else {
+                clearCellHighlights();
+            }
+        }
+    }
+
+    private void handleCellExit(int row, int col) {
+        if (isMyTurn) {
+            Jogador currentPlayer = isBlueTurn ? jogador1 : jogador2;
+            Arc arcToMove = currentPlayer.getArc();
+
+            StackPane currentCell = getCellForArc(arcToMove);
+            if (currentCell != null && GridPane.getRowIndex(currentCell) == row && GridPane.getColumnIndex(currentCell) == col) {
+                clearCellHighlights();
+            }
+        }
+    }
+
+    private void clearCellHighlights() {
+        for (Node node : gridPane.getChildren()) {
+            if (node instanceof StackPane) {
+                StackPane cell = (StackPane) node;
+                cell.setStyle("");
+            }
+        }
+    }
+
 
     // Processa a mensagem recebida do servidor
     private void processServerMessage(String message) {
@@ -216,7 +277,7 @@ public class TabuleiroController {
         }
     }
 
-    // Verifica se o movimento é válido
+    // Verifica se o movimento é válido e aplica o efeito de hover
     private boolean isValidMove(Arc arc, int newRow, int newCol) {
         StackPane currentCell = getCellForArc(arc);
         if (currentCell == null) {
@@ -233,6 +294,9 @@ public class TabuleiroController {
             if (currentRow + dx == newRow && currentCol + dy == newCol) {
                 StackPane nextCell = getCellFromGridPane(gridPane, newRow, newCol);
                 if (nextCell != null && nextCell.getChildren().isEmpty()) {
+                    // Aplica o efeito de hover
+                    nextCell.setStyle("-fx-background-color: yellow;");
+                    nextCell.setOnMouseExited(event -> nextCell.setStyle(""));
                     return true; // Movimento válido se a célula estiver vazia
                 }
             }
@@ -240,6 +304,7 @@ public class TabuleiroController {
 
         return false; // Movimento inválido se não corresponder a nenhum dos movimentos válidos do cavalo ou a célula não estiver vazia
     }
+
 
     // Verifica se o jogador tem movimentos válidos
     boolean hasValidMoves(int i) {
