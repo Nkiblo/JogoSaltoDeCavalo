@@ -74,3 +74,48 @@ public class TabuleiroController {
         }
     }
 }
+
+// Lida com o clique na célula
+private void handleCellClick(int row, int col) {
+    if (isMyTurn) {
+        Jogador currentPlayer = isBlueTurn ? jogador1 : jogador2;
+        Arc arcToMove = currentPlayer.getArc();
+
+        // Verifica se o jogador atual tem movimentos válidos
+        if (hasValidMoves(0)) {
+            if (isValidMove(arcToMove, row, col)) {
+                output.println(row + ":" + col);
+                isMyTurn = false; // Termina o turno somente se o movimento for válido e enviado ao servidor
+            } else {
+                jogadaText.setText("Jogada inválida");
+            }
+        } else {
+            jogadaText.setText("Você não tem movimentos válidos!");
+        }
+    }
+}
+
+// Verifica se o movimento é válido
+private boolean isValidMove(Arc arc, int newRow, int newCol) {
+    StackPane currentCell = getCellForArc(arc);
+    if (currentCell == null) {
+        return false;
+    }
+
+    int currentRow = GridPane.getRowIndex(currentCell);
+    int currentCol = GridPane.getColumnIndex(currentCell);
+
+    // Verifica se o movimento é um dos movimentos válidos do cavalo
+    for (int[] move : validMoves) {
+        int dx = move[0];
+        int dy = move[1];
+        if (currentRow + dx == newRow && currentCol + dy == newCol) {
+            StackPane nextCell = getCellFromGridPane(gridPane, newRow, newCol);
+            if (nextCell != null && nextCell.getChildren().isEmpty()) {
+                return true; // Movimento válido se a célula estiver vazia
+            }
+        }
+    }
+
+    return false; // Movimento inválido se não corresponder a nenhum dos movimentos válidos do cavalo ou a célula não estiver vazia
+}
